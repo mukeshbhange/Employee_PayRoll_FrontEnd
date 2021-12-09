@@ -18,14 +18,14 @@ function EmployeeAddForm() {
     const [employee,setEmployee] = useState(
         {
             name:"",
-            profileUrl:"",
+            profilePic:"",
             gender:"",
             department:[],
             salary:"",
             day:"",
             month:"",
             year:"",
-            notes:""
+            note:""
         }
     );
 
@@ -53,9 +53,11 @@ function EmployeeAddForm() {
                 name: "",
                 profilePic: "",
                 gender: "",
-                department: {},
+                department: [],
                 salary: "",
-                startDate: "",
+                day: "",
+                month:"",
+                year:"",
                 note: ""
             })
         })
@@ -69,13 +71,16 @@ function EmployeeAddForm() {
         if (id) {
             axios.get(`http://localhost:8885/empservices/get/${id}`)
                 .then((res) => {
+                    console.log(res.data);
                     setEmployee({
                         name: res.data.data.name,
                         profilePic:  res.data.data.profilePic,
                         gender:  res.data.data.gender,
-                        department: res.data.data.department,
+                        department: [res.data.data.department],
                         salary:  res.data.data.salary,
-                        startDate:  res.data.data.startDate,
+                        day:res.data.data.startDate.substring(8,9),
+                        month:res.data.data.startDate.substring(5,7),
+                        year:res.data.data.startDate.substring(0,4),
                         note:  res.data.data.note
                     })
                     console.log(employee);
@@ -109,7 +114,7 @@ function EmployeeAddForm() {
             name:"",
             profilePic:"",
             gender:"",
-            department:{},
+            department:[],
             salary:"",
             day:"",
             month:"",
@@ -128,12 +133,12 @@ function EmployeeAddForm() {
         } else {
             let emp_obj ={
                 name:employee.name,
-                profilePic:employee.profileUrl,
+                profilePic:employee.profilePic,
                 gender:employee.gender,
                 departments:employee.department,
                 salary:employee.salary,
                 startDate:`${employee.day} ${employee.month} ${employee.year}`,
-                note:employee.notes
+                note:employee.note
             }
             console.log("Employee : "+JSON.stringify(emp_obj));
             addEmployeeToList(emp_obj);
@@ -154,23 +159,23 @@ function EmployeeAddForm() {
                         <input className="input" type="text" id="name" name="name" value={employee.name} onChange={(e) => { setEmployee({ ...employee, name: e.target.value }) }} placeholder="your Name.." />
                     </div>
                     <div className="row_content">
-                        <label className="label text" htmlFor="profileUrl">Profile Image</label>
+                        <label className="label text" htmlFor="profilePic">Profile Image</label>
                         <div className="profile-radio-content">
                             <label>
-                                <input type="radio" id="profile1" name="profileUrl" value={profile1}  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
-                                <img className="profile" src={profile1} />
+                                <input type="radio" id="profile1" name="profilePic" value={profile1} checked={employee.profilePic === profile1} onChange={(e) => { setEmployee({ ...employee, profilePic: e.target.value }) }} />
+                                <img className="profile" src={profile1} alt="" />
                             </label>
                             <label>
-                                <input type="radio" id="profile2" name="profileUrl" value={profile2}  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }}/>
-                                <img className="profile" src={profile2} />
+                                <input type="radio" id="profile2" name="profilePic" value={profile2}  checked={employee.profilePic === profile2} onChange={(e) => { setEmployee({ ...employee, profilePic: e.target.value }) }}/>
+                                <img className="profile" src={profile2} alt="" />
                             </label>
                             <label>
-                                <input type="radio" id="profile3" name="profileUrl" value={profile3} onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
-                                <img className="profile" src={profile3} />
+                                <input type="radio" id="profile3" name="profilePic" value={profile3} checked={employee.profilePic === profile3} onChange={(e) => { setEmployee({ ...employee, profilePic: e.target.value }) }} />
+                                <img className="profile" src={profile3} alt="" />
                             </label>
                             <label>
-                                <input type="radio" id="profile4" name="profileUrl" value={profile4} onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
-                                <img className="profile" src={profile4} />
+                                <input type="radio" id="profile4" name="profilePic" value={profile4} checked={employee.profilePic === profile4} onChange={(e) => { setEmployee({ ...employee, profilePic: e.target.value }) }} />
+                                <img className="profile" src={profile4} alt="" />
                             </label>
                         </div>
                     </div>
@@ -178,24 +183,24 @@ function EmployeeAddForm() {
                     <div className="row_content">
                         <label className="text label" htmlFor="gender">Gender</label>
                         <div>
-                            <input type="radio" id="male" name="gender" value="male"  onClick={(e) => { setEmployee({ ...employee, gender: e.target.value }) }}/>
+                            <input type="radio" id="male" name="gender" value="male" checked={employee.gender === "male"} onChange={(e) => { setEmployee({ ...employee, gender: e.target.value }) }}/>
                             <label className="taxt" htmlFor="male">Male</label>
-                            <input type="radio" id="female" name="gender" value="female" onClick={(e) => { setEmployee({ ...employee, gender: e.target.value }) }} />
+                            <input type="radio" id="female" name="gender" checked={employee.gender === "female"} value="female" onChange={(e) => { setEmployee({ ...employee, gender: e.target.value }) }} />
                             <label className="taxt" htmlFor="female">Female</label>
                         </div>
                     </div>
                     <div className="row_content">
                         <label className="label text" htmlFor="department">Department</label>
                         <div>
-                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" onClick={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" checked={employee.department.includes("Hr")} onChange={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="hr">HR</label>
-                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" onClick={(e)=>handleDepartment(e)}/>
+                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" checked={employee.department.includes("Sales")} onChange={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="sales">Sales</label>
-                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" onClick={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" checked={employee.department.includes("Fianance")} onChangek={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="fianance">Fianance</label>
-                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" onClick={(e)=>handleDepartment(e)}/>
+                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" checked={employee.department.includes("Engineer")} onChange={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="engineer">Engineer</label>
-                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" onClick={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" checked={employee.department.includes("Others")} onChange={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="others">Others</label>
                         </div>
                     </div>
@@ -231,7 +236,7 @@ function EmployeeAddForm() {
 
                     <div className="row_content">
                         <label className="label text" htmlFor="notes">Notes</label>
-                        <textarea id="notes" name="notes" className="input" style={{ height: '100%' }} value={employee.notes} onChange={(e) => { setEmployee({ ...employee, notes: e.target.value }) }}></textarea>
+                        <textarea id="notes" name="notes" className="input" style={{ height: '100%' }} value={employee.note} onChange={(e) => { setEmployee({ ...employee, note: e.target.value }) }}></textarea>
                     </div>
                     <div className="buttonParent">
                         <a routerLink="" className="resetButton button cancelButton"> Cancel</a>

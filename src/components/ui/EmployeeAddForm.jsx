@@ -1,6 +1,5 @@
-import react, { useEffect, useState } from "react";
-
-
+import react, {params, useEffect, useState } from "react";
+import {Link}  from "react-router-dom";
 import './employeeAddForm.css';
 import profile1 from "../../assets/profile_images/logo1.png";
 import profile2 from "../../assets/profile_images/logo2.png";
@@ -10,89 +9,77 @@ import profile4 from "../../assets/profile_images/logo4.png";
 
 function EmployeeAddForm() {
 
-    const departmentInfo = [{name:"HR"},{name:"Fianance"},{name:"Sales"},{name:"Engineer"},{name:"Others"}];
-    const [employeeList,setemployeeList] =useState([]);
-    const [employee,setEmployee]=useState({
-        name:"",
-        profileUrl:"",
-        gender:"",
-        department:[],
-        salary:"",
-        day:"",
-        month:"",
-        year:"",
-        notes:""
-    });
+    const [employeeList,setEmployeeList] =useState([]);
 
-    const [departementArr,setDeparmentArr]=useState([]);
-    const save =(event)=>{
-        event.preventDefault();
-        setEmployee({...employee,department:[...departementArr]})
-        console.log(employee);
-        employeeList.push(employee);
-        window.localStorage.setItem('PayRoll Employees',JSON.stringify(employeeList));
-        resetForm();
-    }
-
-    const checkDepartments=(event)=>{
-        if(event.target.checked){
-            departementArr.push(event.target.value)
-            setDeparmentArr(departementArr);
-        }
-
-        if(!event.target.value.checked){
-            for(var i =0;i<departementArr.length;i++){
-                if(departementArr[i] == event.target.value){
-                    departementArr.splice(i,1);
-                    i--;                }
-            }
-        }
-        setEmployee({...employee,department:[...departementArr]})
-    }
-
-    const resetForm =()=>{
-        setEmployee({
+    const [employee,setEmployee] = useState(
+        {
             name:"",
             profileUrl:"",
             gender:"",
-            department:{},
+            department:[],
             salary:"",
             day:"",
             month:"",
             year:"",
             notes:""
-        })
-        document.getElementById("emp_add_form").reset();
+        }
+    );
+
+    const handleSubmit =(event)=>{
+        event.preventDefault();
+        console.log(employee);
+        employeeList.push(employee);
+        setEmployeeList(employeeList);
+        localStorage.setItem("EmployeeList",JSON.stringify(employeeList));
+
     }
 
+    const [departmentArr,setDepartmentArr] = useState([]);
+    const handleDepartment = (e) =>{
+       if (e.target.checked) {
+        departmentArr.push(e.target.value)
+        setDepartmentArr(departmentArr)
+    }
+
+    if (!e.target.checked) {
+        for (var i = 0; i < departmentArr.length; i++) {
+            if (departmentArr[i] === e.target.value) {
+                departmentArr.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    setEmployee({ ...employee, department: [...departmentArr] })
+    }
 
     return (
         <>
             <div className="form-content">
-                <form className="form" action="#" onSubmit={save} id="emp_add_form">
+                <form className="form" action="#" onSubmit={(e)=>handleSubmit(e)} id="emp_add_form">
                     <div className="form-head">Employee Payroll form</div>
+                    <Link to="/"><button type="button" className="btn btn-success">Go Dashboard</button></Link>
                     <input type="hidden" id="emp_id" name="emp_id" />
                     <div className="row_content">
                         <label className="label text" htmlFor="name">name</label>
-                        <input className="input" type="text" id="name" name="name" value={employee.name} onChange={(e) => { setEmployee({ ...employee, name: e.target.value }) }} placeholder="your Name.." requuired />
+                        <input className="input" type="text" id="name" name="name" value={employee.name} onChange={(e) => { setEmployee({ ...employee, name: e.target.value }) }} placeholder="your Name.." />
                     </div>
                     <div className="row_content">
                         <label className="label text" htmlFor="profileUrl">Profile Image</label>
                         <div className="profile-radio-content">
                             <label>
-                                <input type="radio" id="profile1" name="profileUrl" value="../../assets/profile-images/logo1.png"  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
+                                <input type="radio" id="profile1" name="profileUrl" value={profile1}  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
                                 <img className="profile" src={profile1} />
                             </label>
                             <label>
-                                <input type="radio" id="profile2" name="profileUrl" value="../../assets/profile-images/logo2.png"  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }}/>
+                                <input type="radio" id="profile2" name="profileUrl" value={profile2}  onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }}/>
                                 <img className="profile" src={profile2} />
                             </label>
                             <label>
-                                <input type="radio" id="profile3" name="profileUrl" value="../../assets/profile-images/logo3.png" onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
+                                <input type="radio" id="profile3" name="profileUrl" value={profile3} onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
                                 <img className="profile" src={profile3} />
                             </label>
                             <label>
-                                <input type="radio" id="profile4" name="profileUrl" value="../../assets/profile-images/logo4.png" onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
+                                <input type="radio" id="profile4" name="profileUrl" value={profile4} onClick={(e) => { setEmployee({ ...employee, profileUrl: e.target.value }) }} />
                                 <img className="profile" src={profile4} />
                             </label>
                         </div>
@@ -110,15 +97,15 @@ function EmployeeAddForm() {
                     <div className="row_content">
                         <label className="label text" htmlFor="department">Department</label>
                         <div>
-                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" />
+                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" onClick={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="hr">HR</label>
-                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" />
+                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" onClick={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="sales">Sales</label>
-                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" />
+                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" onClick={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="fianance">Fianance</label>
-                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" />
+                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" onClick={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="engineer">Engineer</label>
-                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" />
+                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" onClick={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="others">Others</label>
                         </div>
                     </div>
