@@ -19,7 +19,6 @@ function AppMnj() {
       </Routes>
     </div>
     <ToastContainer />
-
   </BrowserRouter>
   );
 }

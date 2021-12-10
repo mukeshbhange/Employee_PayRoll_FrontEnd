@@ -1,5 +1,5 @@
-import { useState,useEffect } from "react";
-import {Link,useParams}  from "react-router-dom";
+import {useState,useEffect } from "react";
+import {useNavigate,Link,useParams}  from "react-router-dom";
 import './employeeAddForm.css';
 import profile1 from "../../assets/profile_images/logo1.png";
 import profile2 from "../../assets/profile_images/logo2.png";
@@ -20,14 +20,37 @@ function EmployeeAddForm() {
             name:"",
             profilePic:"",
             gender:"",
-            department:[],
+            departments:[],
             salary:"",
-            day:"",
-            month:"",
-            year:"",
+            startDate:"",
             note:""
         }
     );
+
+    const {id} = useParams();
+    useEffect(()=>{
+        document.title ="Employee Form";
+        if (id) {
+            axios.get(`http://localhost:8885/empservices/get/${id}`)
+                .then((res) => {
+                    console.log(res.data);
+                    setDepartmentArr(res.data.data.departments);
+                    setEmployee({
+                        name: res.data.data.name,
+                        profilePic:  res.data.data.profilePic,
+                        gender:  res.data.data.gender,
+                        departments: res.data.data.departments,
+                        salary:  res.data.data.salary,
+                        startDate:res.data.data.startDate,
+                        note:  res.data.data.note
+                    })
+                    console.log(employee);
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+    },[]);
 
 
     const addEmployeeToList=(employee_data)=>{
@@ -43,54 +66,19 @@ function EmployeeAddForm() {
             }
         )
     }
-    const {id} = useParams();
+    
 
     const updateEmployee = (data)=>{
         axios.put(`http://localhost:8885/empservices/update/${id}`, data)
         .then((res) => {
             toast.dark("Record Updated Successfully", { position: "top-center" });
-            setEmployee({
-                name: "",
-                profilePic: "",
-                gender: "",
-                department: [],
-                salary: "",
-                day: "",
-                month:"",
-                year:"",
-                note: ""
-            })
         })
         .catch(err => {
             console.log(err);
         })
         };
 
-    useEffect(()=>{
-        document.title ="Employee Form";
-        if (id) {
-            axios.get(`http://localhost:8885/empservices/get/${id}`)
-                .then((res) => {
-                    console.log(res.data);
-                    setEmployee({
-                        name: res.data.data.name,
-                        profilePic:  res.data.data.profilePic,
-                        gender:  res.data.data.gender,
-                        department: [res.data.data.department],
-                        salary:  res.data.data.salary,
-                        day:res.data.data.startDate.substring(8,9),
-                        month:res.data.data.startDate.substring(5,7),
-                        year:res.data.data.startDate.substring(0,4),
-                        note:  res.data.data.note
-                    })
-                    console.log(employee);
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        }
-    },[]);
-
+   
 
     const handleDepartment = (e) =>{
        if (e.target.checked) {
@@ -106,7 +94,7 @@ function EmployeeAddForm() {
             }
         }
     }
-    setEmployee({ ...employee, department: [...departmentArr] })
+    setEmployee({ ...employee, departments: [...departmentArr] })
     }
 
     const resetForm =()=>{
@@ -114,36 +102,26 @@ function EmployeeAddForm() {
             name:"",
             profilePic:"",
             gender:"",
-            department:[],
+            departments:[],
             salary:"",
-            day:"",
-            month:"",
-            year:"",
+            startDate:"",
             notes:""
         })
+        setDepartmentArr([]);
         document.getElementById("emp_add_form").reset();
     }
 
 
+    const navigate = useNavigate();
     const handleSubmit =(event)=>{
         event.preventDefault();
         if (id) {
             updateEmployee(employee);
             resetForm();
         } else {
-            let emp_obj ={
-                name:employee.name,
-                profilePic:employee.profilePic,
-                gender:employee.gender,
-                departments:employee.department,
-                salary:employee.salary,
-                startDate:`${employee.day} ${employee.month} ${employee.year}`,
-                note:employee.note
-            }
-            console.log("Employee : "+JSON.stringify(emp_obj));
-            addEmployeeToList(emp_obj);
-            resetForm();
+            addEmployeeToList(employee);
         }
+        setTimeout(()=>{resetForm(); navigate("/");},3000);
     }
 
 
@@ -192,60 +170,38 @@ function EmployeeAddForm() {
                     <div className="row_content">
                         <label className="label text" htmlFor="department">Department</label>
                         <div>
-                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" checked={employee.department.includes("Hr")} onChange={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="hr" name="hr" value="Hr" checked={employee.departments.includes("Hr")} onChange={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="hr">HR</label>
-                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" checked={employee.department.includes("Sales")} onChange={(e)=>handleDepartment(e)}/>
+                            <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales" checked={employee.departments.includes("Sales")} onChange={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="sales">Sales</label>
-                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" checked={employee.department.includes("Fianance")} onChangek={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="fianance" name="fianance" value="Fianance" checked={employee.departments.includes("Fianance")} onChange={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="fianance">Fianance</label>
-                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" checked={employee.department.includes("Engineer")} onChange={(e)=>handleDepartment(e)}/>
+                            <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer" checked={employee.departments.includes("Engineer")} onChange={(e)=>handleDepartment(e)}/>
                             <label className="text" htmlFor="engineer">Engineer</label>
-                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" checked={employee.department.includes("Others")} onChange={(e)=>handleDepartment(e)} />
+                            <input className="checkbox" type="checkbox" id="others" name="others" value="Others" checked={employee.departments.includes("Others")} onChange={(e)=>handleDepartment(e)} />
                             <label className="text" htmlFor="others">Others</label>
                         </div>
                     </div>
-
                     <div className="row_content">
                         <label className="text label" htmlFor="salary"> Salary</label>
                         <input type="number" id="salary" name="salary" placeholder="salary" className="input" value={employee.salary} onChange={(e) => { setEmployee({ ...employee, salary: e.target.value }) }} />
                     </div>
-
                     <div className="row_content">
                         <label htmlFor="startDate" className="label text">Start Date</label>
                         <div>
-                            <select name="day" id="day" value={employee.day} onChange={(e) => { setEmployee({ ...employee, day: e.target.value }) }}>
-                                <option value="01">1</option>
-                                <option value="02">2</option>
-                                <option value="03">3</option>
-                                <option value="04">4</option>
-                            </select>
-                            <select name="month" id="month" value={employee.month} onChange={(e) => { setEmployee({ ...employee, month: e.target.value }) }}>
-                                <option value="Jan">January</option>
-                                <option value="Feb">Febuary</option>
-                                <option value="Mar">March</option>
-                                <option value="Apr">April</option>
-                            </select>
-                            <select name="year" id="year" value={employee.year} onChange={(e) => { setEmployee({ ...employee, year: e.target.value }) }}>
-                                <option value="2021">2021</option>
-                                <option value="2020">2020</option>
-                                <option value="2019">2019</option>
-                                <option value="2018">2018</option>
-                            </select>
+                            <input type="date" id="startDate"  className="input" name="startDate" value={employee.startDate} onChange={(e) => { setEmployee({ ...employee, startDate: e.target.value })  } }  />
                         </div>
                     </div>
-
                     <div className="row_content">
                         <label className="label text" htmlFor="notes">Notes</label>
                         <textarea id="notes" name="notes" className="input" style={{ height: '100%' }} value={employee.note} onChange={(e) => { setEmployee({ ...employee, note: e.target.value }) }}></textarea>
                     </div>
                     <div className="buttonParent">
-                        <a routerLink="" className="resetButton button cancelButton"> Cancel</a>
                         <div className="submit-reset">
                             <button type="submit" className="button submitButton" id="submitButton">Submit</button>
                             <button type="reset" className="button resetButton">Reset</button>
                         </div>
                     </div>
-
                 </form>
             </div>
         </>
